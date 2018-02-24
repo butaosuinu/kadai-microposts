@@ -130,5 +130,20 @@ class UsersController extends Controller
         
         return view('users.followers', $data);
     }
+
+    public function favs($id)
+    {
+        $user = User::find($id);
+        $favs = $user->favings()->paginate(10);
+
+        $data = [
+            'user' => $user,
+            'microposts' => $favs,
+        ];
+        
+        $data += $this->counts($user);
+        
+        return view('users.favs', $data);
+    }
 }
 

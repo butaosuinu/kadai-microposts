@@ -95,4 +95,38 @@ class User extends Model implements AuthenticatableContract,
         $follow_user_ids[] = $this->id;
         return Micropost::whereIn('user_id', $follow_user_ids);
     }
+
+    public function favings()
+    {
+        return $this->belongsToMany(Micropost::class, 'user_fav', 'user_id', 'micropost_id')->withTimestamps();
+    }
+
+    public function fav($micropostId)
+    {
+        $exist = $this->is_fav($micropostId);
+
+        if ($exist) {
+            return false;
+        } else {
+            $this->favings()->attach($micropostId);
+            return true;
+        }
+    }
+
+    public function unfav($micropostId)
+    {
+        $exist = $this->is_fav($micropostId);
+        
+        if ($exist) {
+            $this->favings()->detach($micropostId);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public function is_fav($micropostId)
+    {
+        return $this->favings()->where('micropost_id', $micropostId)->exists();
+    }
 }
